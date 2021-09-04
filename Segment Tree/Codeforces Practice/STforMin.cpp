@@ -1,3 +1,10 @@
+/*
+Problem link: https://codeforces.com/edu/course/2/lesson/4/1/practice/contest/273169/problem/B
+
+Sovled by: Le Huu Trung
+Guided by: Dr. Vu Duc Minh
+*/
+
 #include<bits/stdc++.h>
 using namespace std;
 
