@@ -1,12 +1,10 @@
-// Wrong answer on test 14 (no matter long long or int)
-
 #include<bits/stdc++.h>
 using namespace std;
 
 // Mỗi nút sẽ chứa 2 thông tin là giá trị của nút và số lần xuất hiện của nút trong đoạn mà nút này quản lý
 struct Node{
     // Mặc định mỗi nút sẽ xuất hiện 1 lần
-    long long value, count = 1;
+    int value, count = 1;
 
     // Khởi tạo nút từ 1 nút khác
     void copy(Node other){
@@ -26,18 +24,18 @@ Node min(Node n1, Node n2){
     return n1.value < n2.value ? n1 : n2;
 }
 
-long long getMid(long long start, long long end){
+int getMid(int start, int end){
     return start + (end - start)/2;
 }
 
 // Xây dựng cây bằng đệ quy
-void constructSTUntil(Node arr[], long long start, long long end, Node *st, long long current){
+void constructSTUntil(Node arr[], int start, int end, Node *st, int current){
     if(start == end){
         st[current].copy(arr[start]);
         return;
     }
 
-    long long mid = getMid(start, end);
+    int mid = getMid(start, end);
 
     constructSTUntil(arr, start, mid, st, current*2 + 1);
     constructSTUntil(arr, mid + 1, end, st, current*2 + 2);
@@ -51,15 +49,15 @@ void constructSTUntil(Node arr[], long long start, long long end, Node *st, long
     return;
 }
 
-Node *constructST(Node arr[], long long n){
-    long long x = (long long)ceil(log2(n));
-    long long max_size = 2*(long long)pow(2, x) - 1;
+Node *constructST(Node arr[], int n){
+    int x = (int)ceil(log2(n));
+    int max_size = 2*(int)pow(2, x) - 1;
     Node *st = new Node[max_size];
     constructSTUntil(arr, 0, n - 1, st, 0);
     return st;
 }
 
-Node getMinUntil(Node *st, long long start, long long end, long long l, long long r, long long current){
+Node getMinUntil(Node *st, int start, int end, int l, int r, int current){
     if(l <= start && r >= end){
         return st[current];
     }
@@ -69,17 +67,24 @@ Node getMinUntil(Node *st, long long start, long long end, long long l, long lon
         return other;
     }
 
-    long long mid = getMid(start, end);
-    // Hàm min này được nạp chồng bởi hàm min đã tạo bên trên
-    return min(getMinUntil(st, start, mid, l , r, current*2 + 1), getMinUntil(st, mid + 1, end, l, r, current*2 + 2));
+    int mid = getMid(start, end);
+    Node left = getMinUntil(st, start, mid, l , r, current*2 + 1);
+    Node right = getMinUntil(st, mid + 1, end, l , r, current*2 + 2);
+    Node answer;
+    if(left.value == right.value){
+        answer.addCount(left, right);
+    }else{
+        answer.copy(min(left, right));
+    }
+    return answer;
 }
 
-Node getMin(Node *st, long long n, long long l, long long r){
+Node getMin(Node *st, int n, int l, int r){
     Node error = {-1, -1};
     return (l < 0 || r > n - 1 || l > r) ? error : getMinUntil(st, 0, n - 1, l, r, 0);
 }
 
-void updateValue(Node arr[], Node *st, long long start, long long end, long long index, Node other, long long current){
+void updateValue(Node arr[], Node *st, int start, int end, int index, Node other, int current){
     if(index < start || index > end){
         return;
     }
@@ -88,7 +93,7 @@ void updateValue(Node arr[], Node *st, long long start, long long end, long long
         arr[index].copy(other);
         st[current].copy(other);
     }else{
-        long long mid = getMid(start, end);
+        int mid = getMid(start, end);
         if(index >= start && index <= mid){
             updateValue(arr, st, start, mid, index, other, current*2 + 1);
         }else{
@@ -111,15 +116,15 @@ void show(Node n){
 }
 
 int main(){
-    long long n, m, option, index, value, left, right;
+    int n, m, option, index, value, left, right;
     cin >> n >> m;
     Node arr[n];
-    for(long long i = 0; i < n; i++){
+    for(int i = 0; i < n; i++){
         cin >> arr[i].value;
     }
     Node *st = constructST(arr, n);
     Node other;
-    for(long long i = 0; i < m; i++){
+    for(int i = 0; i < m; i++){
         cin >> option;
         switch(option){
             case 1:
@@ -144,3 +149,12 @@ int main(){
 //   3,1  3,1  5,1  2,1
 //  /   \
 // 3,1  4,1
+
+// 1 1 1 1 1
+//            1,5 
+//         /      \
+//      1,3       1,2
+//     /  \      /  \
+//   1,2  1,1  1,1  1,1
+//  /   \
+// 1,1  1,1
