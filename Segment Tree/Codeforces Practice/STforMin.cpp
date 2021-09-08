@@ -2,7 +2,7 @@
 Problem link: https://codeforces.com/edu/course/2/lesson/4/1/practice/contest/273169/problem/B
 
 Sovled by: Le Huu Trung
-Guided by: Dr. Vu Duc Minh
+Supervisor: Dr. Vu Duc Minh
 */
 
 #include<bits/stdc++.h>
@@ -95,6 +95,22 @@ int main(){
         }
     }
 }    
+//      Sample test
+// input           
+// 5 5                 
+// 5 4 2 3 5       
+// 2 0 3           
+// 1 2 6
+// 2 0 3
+// 1 3 1
+// 2 0 5
+// output
+// 2
+// 4
+// 1
+
+// Tree Illumination
+// 5 4 2 3 5
 //         2 [0:4]
 //      /     \
 //     2 [0:2] 3 [3:4]
@@ -102,4 +118,3 @@ int main(){
 //   4  2    3  5
 //  /\
 // 5  4
-// 5 4 2 3 5
