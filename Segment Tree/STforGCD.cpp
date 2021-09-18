@@ -13,16 +13,18 @@ int getMid(int start, int end){
     return start + (end - start)/2;
 }
 
-int constructSTUntil(int *st, int arr[], int start, int end, int current){
+void constructSTUntil(int *st, int arr[], int start, int end, int current){
     if(start == end){
         st[current] = arr[start];
-        return arr[start];
+        return;
     }
 
     int mid = getMid(start, end);
 
-    st[current] = __gcd(constructSTUntil(st, arr, start, mid, current*2 + 1), constructSTUntil(st, arr, mid + 1, end, current*2 + 2));
-    return st[current];
+    constructSTUntil(st, arr, start, mid, current*2 + 1);
+    constructSTUntil(st, arr, mid + 1, end, current*2 + 2);
+
+    st[current] = __gcd(st[current*2 + 1], st[current*2 + 2]);
 }
 
 int *constructST(int arr[], int n){
@@ -40,13 +42,7 @@ int getGCDUntil(int *st, int start, int end, int l, int r, int current){
 
     int mid = getMid(start, end);
 
-    // Khi đệ quy đến đoạn nằm ngoài [l,r] thì phải dừng 
-    // Để dừng hàm phải return 1 giá trị cùng kiểu hàm
-    // Tuy nhiên rất khó để tìm được giá trị phù hợp để return và dừng đệ quy ở đoạn ngoài [l,r]
-    // Cụ thể thì giá trị này phải thỏa mãn điều kiện là không làm ảnh hưởng đến kết quả khi truyền vào hàm __gcd
-    // Giá trị này phải chính xác bằng giá trị cần tìm (gcd(a,a) = a, vô lý vì chưa tìm được giá trị cần tìm)
-    // Vậy nên không có cách nào để dừng đệ quy ở đoạn nằm ngoài [l,r] mà không ảnh hưởng đến kq
-    // ==> Phải điều hướng đệ quy, chỉ đệ quy trong đoạn [l,r]
+    // Điều hướng đệ quy để giảm số phép tính, hoặc cứ return 0 ở đoạn nằm ngoài [l,r] cũng được
     // TH1: mid + 1 > r ==> Đệ quy bên trái
     if(mid + 1 > r){
         return getGCDUntil(st, start, mid, l, r, current*2 + 1);
@@ -86,3 +82,18 @@ int main(){
         cout << getGCD(st, n, l - 1, r - 1) << endl;
     }
 }
+
+
+
+// 1 3 10 8 6 9 4 2
+// 10 15 2 9 6 4 2 7
+
+// n = 8
+// 9 12 8 1 0 5 2 5 
+//                             1[0,7]
+//                   /                         \  
+//             1[0,3]                          1[4,7]
+//         /           \                   /           \
+//     3[0,1]         1[2,3]          5[4,5]         1[6,7]
+//    /    \           /  \           /  \            / \
+// 9[0,0] 12[1,1]  8[2,2] 1[3,3]  0[4,4] 5[5,5]  2[6,6] 5[7,7]
