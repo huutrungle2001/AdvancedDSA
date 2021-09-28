@@ -23,5 +23,6 @@
         "initializer_list": "cpp",
         "valarray": "cpp",
         "iostream": "cpp"
-    }
+    },
+    "editor.fontSize": 16
 }
