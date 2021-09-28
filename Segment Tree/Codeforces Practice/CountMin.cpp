@@ -1,3 +1,9 @@
+/*
+Problem Link: https://codeforces.com/edu/course/2/lesson/4/1/practice/contest/273169/problem/C
+Author: Lê Hữu Trung
+Supervisor: Dr. Vũ Đức Minh
+*/
+
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -92,21 +98,22 @@ void updateValue(Node arr[], Node *st, int start, int end, int index, Node other
     if(start == end){
         arr[index].copy(other);
         st[current].copy(other);
+        return;
+    }
+    
+    int mid = getMid(start, end);
+    if(index >= start && index <= mid){
+        updateValue(arr, st, start, mid, index, other, current*2 + 1);
     }else{
-        int mid = getMid(start, end);
-        if(index >= start && index <= mid){
-            updateValue(arr, st, start, mid, index, other, current*2 + 1);
-        }else{
-            updateValue(arr, st, mid + 1, end, index, other, current*2 + 2);
-        }
+        updateValue(arr, st, mid + 1, end, index, other, current*2 + 2);
+    }
 
-        if(st[current*2 + 1].value == st[current*2 + 2].value){
-            // Nếu sau khi update value mà 2 nút con trái phải có cùng value thì nút cha sẽ có count bằng tổng count của 2 nút con
-            st[current].addCount(st[current*2 + 1], st[current*2 + 2]);
-        }else{
-            // Nếu 2 nút con trái phải có value khác nhau thì nút cha sẽ được copy từ nút con có value nhỏ hơn
-            st[current].copy(min(st[current*2 + 1], st[current*2 + 2]));
-        }
+    if(st[current*2 + 1].value == st[current*2 + 2].value){
+        // Nếu sau khi update value mà 2 nút con trái phải có cùng value thì nút cha sẽ có count bằng tổng count của 2 nút con
+        st[current].addCount(st[current*2 + 1], st[current*2 + 2]);
+    }else{
+        // Nếu 2 nút con trái phải có value khác nhau thì nút cha sẽ được copy từ nút con có value nhỏ hơn
+        st[current].copy(min(st[current*2 + 1], st[current*2 + 2]));
     }
 }
 

@@ -1,3 +1,9 @@
+/*
+Problem Link: https://codeforces.com/edu/course/2/lesson/4/1/practice/contest/273169/problem/A
+Author: Lê Hữu Trung
+Supervisor: Dr. Vũ Đức Minh
+*/
+
 #include<bits/stdc++.h>
 using namespace std;
 
