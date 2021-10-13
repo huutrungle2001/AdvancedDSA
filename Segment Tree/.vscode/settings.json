@@ -22,7 +22,8 @@
         "string_view": "cpp",
         "initializer_list": "cpp",
         "valarray": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "map": "cpp"
     },
     "editor.fontSize": 16
 }
