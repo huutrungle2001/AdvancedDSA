@@ -36,7 +36,7 @@ int *constructST(int arr[], int n){
 int firstAtLeastXUntil(int *st, int start, int end, int X, int current){
     if(start == end && st[current] >= X){
         return start;
-    }else if(start == end && st[current] < X){
+    }else if(start > end || start == end && st[current] < X){
         return -1;
     }
 
