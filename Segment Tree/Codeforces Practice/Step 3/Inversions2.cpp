@@ -1,7 +1,7 @@
 /*
-Problem Link: https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
-Author: Lê Hữu Trung
-Supervisor: Dr. Vũ Đức Minh
+Problem Link:   https://c...content-available-to-author-only...s.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
+Author:         Lê Hữu Trung
+Supervisor:     Dr. Vũ Đức Minh
 */
 
 #include<bits/stdc++.h>
@@ -11,7 +11,7 @@ int getMid(int start, int end){
     return start + (end - start)/2;
 }
 
-void constructSTUntil(int *st, int arr[], int start, int end, int current){
+void constructSTUntil(vector<int> &st, vector<int> &arr, int start, int end, int current){
     if(start == end){
         st[current] = arr[start];
         return;
@@ -25,15 +25,15 @@ void constructSTUntil(int *st, int arr[], int start, int end, int current){
     st[current] = st[current*2 + 1] + st[current*2 + 2];
 }
 
-int *constructST(int arr[], int n){
+vector<int> constructST(vector<int> &arr, int n){
     int height = (int)ceil(log2(n));
     int max_size = 2*pow(2, height) - 1;
-    int *st = new int[max_size];
+    vector<int> st(max_size);
     constructSTUntil(st, arr, 0, n - 1, 0);
     return st;
 }
 
-int getKthUntil(int *st, int start, int end, int current, int k){
+int getKthUntil(vector<int> &st, int start, int end, int current, int k){
     if(start == end){
         return start;
     }
@@ -47,11 +47,11 @@ int getKthUntil(int *st, int start, int end, int current, int k){
     }
 }
 
-int getKth(int *st, int k, int n){
+int getKth(vector<int> &st, int k, int n){
     return getKthUntil(st, 0, n - 1, 0, k);
 }
 
-void updateValueUntil(int *st, int start, int end, int position, int current){
+void updateValueUntil(vector<int> &st, int start, int end, int position, int current){
     if(start == end){
         st[current] = 1 - st[current];
         return;
@@ -68,32 +68,28 @@ void updateValueUntil(int *st, int start, int end, int position, int current){
     st[current] = st[current*2 + 1] + st[current*2 + 2];
 }
 
-void updateValue(int *st, int n, int position){ 
+void updateValue(vector<int> &st, int n, int position){
     updateValueUntil(st, 0, n - 1, position, 0);
 }
 
 int main(){
-    int n, m;
-    cin >> n >> m;
-    int arr[n];
+    int n;
+    cin >> n;
+
+    int A[n];
     for(int i = 0; i < n; i++){
-        cin >> arr[i];
+        cin >> A[i];
     }
 
-    int *st = constructST(arr, n);
+    vector<int> B(n, 1);
+    vector<int> st = constructST(B, n);
 
-    for(int i = 0; i < m; i++){
-        int op;
-        cin >> op;
-        if(op == 1){
-            int position;
-            cin >> position;
-            arr[position] = 1 - arr[position];
-            updateValue(st, n, position);
-        }else{
-            int k;
-            cin >> k;
-            cout << getKth(st, k, n) << "\n";
-        }
+    for(int i = n - 1; i >= 0; i--){
+        B[i] = n - getKth(st, A[i], n);
+        updateValue(st, n, A[i]);
+    }
+
+    for(int i : B){
+        cout << i << " ";
     }
 }

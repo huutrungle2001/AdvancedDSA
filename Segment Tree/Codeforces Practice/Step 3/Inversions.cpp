@@ -1,8 +1,8 @@
-/*
-Problem Link: https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/A
-Author: Lê Hữu Trung
-Supervisor: Dr. Vũ Đức Minh
-*/
+/**
+    Problem Link: https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/A
+    Author: Lê Hữu Trung
+    Supervisor: Dr. Vũ Đức Minh
+**/
 
 #include<bits/stdc++.h> 
 #define inf 1000000

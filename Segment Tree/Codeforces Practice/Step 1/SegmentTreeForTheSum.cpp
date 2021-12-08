@@ -4,97 +4,167 @@ Author: Lê Hữu Trung
 Supervisor: Dr. Vũ Đức Minh
 */
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-int getMid(int start, int end){
-    return start + (end - start)/2;
-}
+// A data structure for each node in the Segment Tree.
+struct Node {
+    long long value;
 
-int constructSTUntil(int arr[], int start, int end, int *st, int current){
-    if(start == end){
-        st[current] = arr[start];
-        return arr[start];
+    // Constructor of a empty node.
+    Node() {
+        value = 0;
     }
 
-    int mid = getMid(start, end);
-    
-    st[current] = constructSTUntil(arr, start, mid, st, current*2 + 1) 
-                + constructSTUntil(arr, mid + 1, end, st, current*2 + 2);
-    return st[current];
-}
-
-int *constructST(int arr[], int n){
-    int x = (int)(ceil(log2(n)));
-    int max_size = 2*(int)pow(2, x) - 1;
-    int *st = new int[max_size];
-    constructSTUntil(arr, 0, n - 1, st, 0);
-    return st;
-}
-
-int getSumUntil(int *st, int start, int end, int l, int r, int current){
-    if(l <= start && r >= end){
-        return st[current];
+    // A method for setting the leaf node.
+    void set(long long value_) {
+        value = value_;
     }
 
-    if(r < start || l > end){
-        return 0;
+    // A method for setting the internal node.
+    void merge(Node left, Node right) {
+        value = left.value + right.value;
     }
+};
 
-    int mid = getMid(start, end);
-    return getSumUntil(st, start, mid, l, r, current*2 + 1) + getSumUntil(st, mid + 1, end, l, r, current*2 + 2);
+int getMid(int start, int end) {
+    return start + (end - start) / 2;
 }
 
-int getSum(int *st, int n, int l, int r){
-    return (l < 0 || r > n - 1 || l > r) ? -1 : getSumUntil(st, 0, n - 1, l, r, 0);
-}
+// A data structure for the Segment Tree.
+struct SegmentTree {
+    // Maximum size of the segment tree.
+    int size;
 
-void updateValueUntil(int *st, int start, int end, int i, int diff, int current){
-    if(i < start || i > end){
-        return;
+    // A vector for storing the nodes of the Segment Tree.
+    vector<Node> ST;
+
+    // Constructor of the Segment Tree.
+    SegmentTree(int n) {
+        // Calculate the height.
+        int height = (int)ceil(log2(n));
+        // Calculate the maxsize.
+        size = 2 * pow(2, height) - 1;
+        // Allocate memory for Segment Tree.
+        ST.resize(size);
     }
-    st[current] += diff;
 
-    if(start != end) {
+    // A recursive method for constructing the Segment Tree.
+    void Construct(long long arr[], int n, int start, int end, int current) {
+        // If there is only one element in the array, store its infomation in the current node and stop recurring.
+        if (start == end) {
+            ST[current].set(arr[start]);
+            return;
+        }
+
         int mid = getMid(start, end);
-        updateValueUntil(st, start, mid, i, diff, current*2 + 1);
-        updateValueUntil(st, mid + 1, end, i, diff, current*2 + 2);
+
+        // If there are more than one element in the array,
+        // devide the array into two halves and call the same procedure on each half.
+        Construct(arr, n, start, mid, current * 2 + 1);
+        Construct(arr, n, mid + 1, end, current * 2 + 2);
+
+        // Store the infomation of left and right child in internal node.
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
     }
-}
 
-void updateValue(int arr[], int *st, int n, int i, int value){
-    if(i < 0 || i > n) {
-        return;
+    // Overloading method for constructing the Segment Tree.
+    void Construct(long long arr[], int n) {
+        Construct(arr, n, 0, n - 1, 0);
     }
 
-    int diff = value - arr[i];
-    arr[i] = value;
+    // A recursive method for range query on the Segment Tree.
+    Node Query(int l, int r, int start, int end, int current) {
+        // Declare a empty node with initial value of zero to store the query answer.
+        Node answer;
 
-    updateValueUntil(st, 0, n - 1, i, diff, 0);
-}
+        // If the current segment is a part of the query range,
+        // assign the current node to answer and return.
+        if (l <= start && r >= end) {
+            answer = ST[current];
+            return answer;
+        }
 
+        // If the current segment is completely outside the query range, just return the empty node.
+        if (l > end || r < start || l > r) {
+            return answer;
+        }
 
-int main(){
-    int n, m, option, index, value, left, right;
+        // If the current segment overlaps with the query range,
+        // divide it into two halves an call the same procedure for each half.
+        int mid = getMid(start, end);
+
+        Node left = Query(l, r, start, mid, current * 2 + 1);
+        Node right = Query(l, r, mid + 1, end, current * 2 + 2);
+
+        // Merge the query answer on the left and right halves and return.
+        answer.merge(left, right);
+
+        return answer;
+    }
+
+    // Overloading method for range query on the Segment Tree.
+    Node Query(int l, int r, int n) {
+        return Query(l, r, 0, n - 1, 0);
+    }
+
+    // Recursive method for updating the Segment Tree.
+    void Update(int position, long long value, int start, int end, int current) {
+        // If the postion is completely outside the current segment, just stop recurring.
+        if (position < start || position > end) {
+            return;
+        }
+
+        if (start == end) {
+            ST[current].set(value);
+            return;
+        }
+
+        int mid = getMid(start, end);
+
+        if (position <= mid) {
+            Update(position, value, start, mid, current * 2 + 1);
+        } else {
+            Update(position, value, mid + 1, end, current * 2 + 2);
+        }
+
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
+    }
+
+    void Update(int position, long long value, int n) {
+        Update(position, value, 0, n - 1, 0);
+    }
+
+    void Display() {
+        for (Node node : ST) {
+            cout << node.value << " ";
+        }
+    }
+};
+
+int main() {
+    int n, m;
     cin >> n >> m;
-    int arr[n];
-    for(int i = 0; i < n; i++){
-        cin >> arr[i];
+    long long nums[n];
+
+    for (long long &num : nums) {
+        cin >> num;
     }
+    SegmentTree tree(n);
+    tree.Construct(nums, n);
 
-    int *st = constructST(arr, n);
-
-    for(int i = 0; i < m; i++){
-        cin >> option;
-        switch(option){ 
-            case 1: 
-                cin >> index >> value;
-                updateValue(arr, st, n, index, value);
-                break;
-            case 2: 
-                cin >> left >> right;
-                cout << getSum(st, n, left, right - 1) << endl;
-                break;
+    for (int i = 0; i < m; i++) {
+        int opration;
+        cin >> opration;
+        if (opration == 1) {
+            int position;
+            long long value;
+            cin >> position >> value;
+            tree.Update(position, value, n);
+        } else {
+            int left, right;
+            cin >> left >> right;
+            cout << tree.Query(left, right - 1, n).value << "\n";
         }
     }
 }
