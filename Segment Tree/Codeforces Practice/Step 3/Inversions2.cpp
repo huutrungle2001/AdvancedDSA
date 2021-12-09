@@ -1,7 +1,7 @@
 /*
 Problem Link:   https://c...content-available-to-author-only...s.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
 Author:         Lê Hữu Trung
-Instructor:     Dr. Vũ Đức Minh
+Instructor:     Ph.D. Vũ Đức Minh
 */
 
 #include<bits/stdc++.h>

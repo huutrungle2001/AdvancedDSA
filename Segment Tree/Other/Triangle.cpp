@@ -2,7 +2,7 @@
 Accepted.
 Problem Link: https://oj.vnoi.info/problem/olp_kc19_tri
 Solved: Lê Hữu Trung
-Instructor: Dr. Vũ Đức Minh
+Instructor: Ph.D. Vũ Đức Minh
 Note: Change int to long long to get Accepted
 */
 
