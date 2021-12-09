@@ -11,7 +11,7 @@ using namespace std;
 struct Node {
     long long value;
 
-    // Constructor of a empty node.
+    // Constructor of an empty node.
     Node() {
         value = 0;
     }
@@ -24,6 +24,10 @@ struct Node {
     // A method for setting the internal node.
     void merge(Node left, Node right) {
         value = left.value + right.value;
+    }
+
+    void display(){
+        cout << value << "\n";
     }
 };
 
@@ -51,7 +55,7 @@ struct SegmentTree {
 
     // A recursive method for constructing the Segment Tree.
     void Construct(long long arr[], int n, int start, int end, int current) {
-        // If there is only one element in the array, store its infomation in the current node and stop recurring.
+        // If there is only one element in the array, store its information in the current node and stop recurring.
         if (start == end) {
             ST[current].set(arr[start]);
             return;
@@ -60,11 +64,11 @@ struct SegmentTree {
         int mid = getMid(start, end);
 
         // If there are more than one element in the array,
-        // devide the array into two halves and call the same procedure on each half.
+        // divide the array into two halves and call the same procedure on each half.
         Construct(arr, n, start, mid, current * 2 + 1);
         Construct(arr, n, mid + 1, end, current * 2 + 2);
 
-        // Store the infomation of left and right child in internal node.
+        // Store the information of the left and right child in the internal node.
         ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
     }
 
@@ -75,7 +79,7 @@ struct SegmentTree {
 
     // A recursive method for range query on the Segment Tree.
     Node Query(int l, int r, int start, int end, int current) {
-        // Declare a empty node with initial value of zero to store the query answer.
+        // Declare an empty node with initial value of zero to store the query answer.
         Node answer;
 
         // If the current segment is a part of the query range,
@@ -91,7 +95,7 @@ struct SegmentTree {
         }
 
         // If the current segment overlaps with the query range,
-        // divide it into two halves an call the same procedure for each half.
+        // divide it into two halves and call the same procedure for each half.
         int mid = getMid(start, end);
 
         Node left = Query(l, r, start, mid, current * 2 + 1);
@@ -110,7 +114,7 @@ struct SegmentTree {
 
     // Recursive method for updating the Segment Tree.
     void Update(int position, long long value, int start, int end, int current) {
-        // If the postion is completely outside the current segment, just stop recurring.
+        // If the position is completely outside the current segment, just stop recurring.
         if (position < start || position > end) {
             return;
         }
@@ -134,12 +138,6 @@ struct SegmentTree {
     void Update(int position, long long value, int n) {
         Update(position, value, 0, n - 1, 0);
     }
-
-    void Display() {
-        for (Node node : ST) {
-            cout << node.value << " ";
-        }
-    }
 };
 
 int main() {
@@ -154,9 +152,9 @@ int main() {
     tree.Construct(nums, n);
 
     for (int i = 0; i < m; i++) {
-        int opration;
-        cin >> opration;
-        if (opration == 1) {
+        int operation;
+        cin >> operation;
+        if (operation == 1) {
             int position;
             long long value;
             cin >> position >> value;
@@ -164,7 +162,7 @@ int main() {
         } else {
             int left, right;
             cin >> left >> right;
-            cout << tree.Query(left, right - 1, n).value << "\n";
+            tree.Query(left, right - 1, n).display();
         }
     }
 }

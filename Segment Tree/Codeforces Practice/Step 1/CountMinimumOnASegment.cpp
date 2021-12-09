@@ -4,145 +4,182 @@ Author: Lê Hữu Trung
 Supervisor: Dr. Vũ Đức Minh
 */
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-// Mỗi nút sẽ chứa 2 thông tin là giá trị của nút và số lần xuất hiện của nút trong đoạn mà nút này quản lý
-struct Node{
-    // Mặc định mỗi nút sẽ xuất hiện 1 lần
-    int value, count = 1;
+// A data structure for each node in the Segment Tree.
+struct Node {
+    // Each node store the value of the element and count the appearance times
+    long long value, count;
 
-    // Khởi tạo nút từ 1 nút khác
-    void copy(Node other){
-        value = other.value;
-        count = other.count;
+    // Constructor of an empty node.
+    Node() {
+        value = INT_MAX;
+        count = 1;
     }
 
-    // Cộng số lần xuất hiện của 2 nút lại khi giá trị của 2 nút này bằng nhau
-    void addCount(Node n1, Node n2){
-        value = n1.value;
-        count = n1.count + n2.count;
+    // A method for setting the leaf node.
+    void set(long long value_) {
+        value = value_;
+        count = 1;
+    }
+
+    Node min(Node left, Node right) {
+        return left.value < right.value ? left : right;
+    }
+
+    // A method for setting the internal node.
+    void merge(Node left, Node right) {
+        // If the value of the left and right child is equal, sum up the count attribute
+        if (left.value == right.value) {
+            value = left.value;
+            count = left.count + right.count;
+        }
+        // Else get the child with smaller value's count
+        else {
+            Node tmp = min(left, right);
+            value = tmp.value;
+            count = tmp.count;
+        }
+    }
+
+    void display() {
+        cout << value << " " << count << "\n";
     }
 };
 
-// Hàm trả về nút có value nhỏ nhất
-Node min(Node n1, Node n2){
-    return n1.value < n2.value ? n1 : n2;
+int getMid(int start, int end) {
+    return start + (end - start) / 2;
 }
 
-int getMid(int start, int end){
-    return start + (end - start)/2;
-}
+// A data structure for the Segment Tree.
+struct SegmentTree {
+    // Maximum size of the segment tree.
+    int size;
 
-// Xây dựng cây bằng đệ quy
-void constructSTUntil(Node arr[], int start, int end, Node *st, int current){
-    if(start == end){
-        st[current].copy(arr[start]);
-        return;
+    // A vector for storing the nodes of the Segment Tree.
+    vector<Node> ST;
+
+    // Constructor of the Segment Tree.
+    SegmentTree(int n) {
+        // Calculate the height.
+        int height = (int)ceil(log2(n));
+        // Calculate the maxsize.
+        size = 2 * pow(2, height) - 1;
+        // Allocate memory for Segment Tree.
+        ST.resize(size);
     }
 
-    int mid = getMid(start, end);
+    // A recursive method for constructing the Segment Tree.
+    void Construct(long long arr[], int n, int start, int end, int current) {
+        // If there is only one element in the array, store its information in the current node and stop recurring.
+        if (start == end) {
+            ST[current].set(arr[start]);
+            return;
+        }
 
-    constructSTUntil(arr, start, mid, st, current*2 + 1);
-    constructSTUntil(arr, mid + 1, end, st, current*2 + 2);
-    if(st[current*2 + 1].value == st[current*2 + 2].value){
-        // Nếu 2 nút trái phải có value bằng nhau thì nút cha sẽ có count bằng tổng count của 2 nút trái phải
-        st[current].addCount(st[current*2 + 1], st[current*2 + 2]);
-    }else{
-        // Nếu không thì lấy nút có value bé hơn
-        st[current].copy(min(st[current*2 + 1], st[current*2 + 2]));
-    }
-    return;
-}
+        int mid = getMid(start, end);
 
-Node *constructST(Node arr[], int n){
-    int x = (int)ceil(log2(n));
-    int max_size = 2*(int)pow(2, x) - 1;
-    Node *st = new Node[max_size];
-    constructSTUntil(arr, 0, n - 1, st, 0);
-    return st;
-}
+        // If there are more than one element in the array,
+        // divide the array into two halves and call the same procedure on each half.
+        Construct(arr, n, start, mid, current * 2 + 1);
+        Construct(arr, n, mid + 1, end, current * 2 + 2);
 
-Node getMinUntil(Node *st, int start, int end, int l, int r, int current){
-    if(l <= start && r >= end){
-        return st[current];
+        // Store the information of the left and right child in the internal node.
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
     }
 
-    if(r < start || l > end){
-        Node other = {INT_MAX, INT_MAX};
-        return other;
+    // Overloading method for constructing the Segment Tree.
+    void Construct(long long arr[], int n) {
+        Construct(arr, n, 0, n - 1, 0);
     }
 
-    int mid = getMid(start, end);
-    Node left = getMinUntil(st, start, mid, l , r, current*2 + 1);
-    Node right = getMinUntil(st, mid + 1, end, l , r, current*2 + 2);
-    Node answer;
-    if(left.value == right.value){
-        answer.addCount(left, right);
-    }else{
-        answer.copy(min(left, right));
-    }
-    return answer;
-}
+    // A recursive method for range query on the Segment Tree.
+    Node Query(int l, int r, int start, int end, int current) {
+        // Declare an empty node with initial value of zero to store the query answer.
+        Node answer;
 
-Node getMin(Node *st, int n, int l, int r){
-    Node error = {-1, -1};
-    return (l < 0 || r > n - 1 || l > r) ? error : getMinUntil(st, 0, n - 1, l, r, 0);
-}
+        // If the current segment is a part of the query range,
+        // assign the current node to answer and return.
+        if (l <= start && r >= end) {
+            answer = ST[current];
+            return answer;
+        }
 
-void updateValue(Node arr[], Node *st, int start, int end, int index, Node other, int current){
-    if(index < start || index > end){
-        return;
-    }
+        // If the current segment is completely outside the query range, just return the empty node.
+        if (l > end || r < start || l > r) {
+            return answer;
+        }
 
-    if(start == end){
-        arr[index].copy(other);
-        st[current].copy(other);
-        return;
-    }
-    
-    int mid = getMid(start, end);
-    if(index >= start && index <= mid){
-        updateValue(arr, st, start, mid, index, other, current*2 + 1);
-    }else{
-        updateValue(arr, st, mid + 1, end, index, other, current*2 + 2);
+        // If the current segment overlaps with the query range,
+        // divide it into two halves and call the same procedure for each half.
+        int mid = getMid(start, end);
+
+        Node left = Query(l, r, start, mid, current * 2 + 1);
+        Node right = Query(l, r, mid + 1, end, current * 2 + 2);
+
+        // Merge the query answer on the left and right halves and return.
+        answer.merge(left, right);
+
+        return answer;
     }
 
-    if(st[current*2 + 1].value == st[current*2 + 2].value){
-        // Nếu sau khi update value mà 2 nút con trái phải có cùng value thì nút cha sẽ có count bằng tổng count của 2 nút con
-        st[current].addCount(st[current*2 + 1], st[current*2 + 2]);
-    }else{
-        // Nếu 2 nút con trái phải có value khác nhau thì nút cha sẽ được copy từ nút con có value nhỏ hơn
-        st[current].copy(min(st[current*2 + 1], st[current*2 + 2]));
+    // Overloading method for range query on the Segment Tree.
+    Node Query(int l, int r, int n) {
+        return Query(l, r, 0, n - 1, 0);
     }
-}
 
-// Hàm show để in thông tin 1 nút cho tiện
-void show(Node n){
-    cout << n.value << " " << n.count << endl;
-}
+    // Recursive method for updating the Segment Tree.
+    void Update(int position, long long value, int start, int end, int current) {
+        // If the position is completely outside the current segment, just stop recurring.
+        if (position < start || position > end) {
+            return;
+        }
 
-int main(){
-    int n, m, option, index, value, left, right;
+        if (start == end) {
+            ST[current].set(value);
+            return;
+        }
+
+        int mid = getMid(start, end);
+
+        if (position <= mid) {
+            Update(position, value, start, mid, current * 2 + 1);
+        } else {
+            Update(position, value, mid + 1, end, current * 2 + 2);
+        }
+
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
+    }
+
+    void Update(int position, long long value, int n) {
+        Update(position, value, 0, n - 1, 0);
+    }
+};
+
+int main() {
+    int n, m;
     cin >> n >> m;
-    Node arr[n];
-    for(int i = 0; i < n; i++){
-        cin >> arr[i].value;
+    long long nums[n];
+
+    for (long long &num : nums) {
+        cin >> num;
     }
-    Node *st = constructST(arr, n);
-    Node other;
-    for(int i = 0; i < m; i++){
-        cin >> option;
-        switch(option){
-            case 1:
-                cin >> index >> value;
-                other = {value, 1};
-                updateValue(arr, st, 0, n - 1, index, other, 0);
-                break;
-            case 2:
-                cin >> left >> right;
-                show(getMin(st, n, left, right - 1));
-                break;
+    SegmentTree tree(n);
+    tree.Construct(nums, n);
+
+    for (int i = 0; i < m; i++) {
+        int operation;
+        cin >> operation;
+        if (operation == 1) {
+            int position;
+            long long value;
+            cin >> position >> value;
+            tree.Update(position, value, n);
+        } else {
+            int left, right;
+            cin >> left >> right;
+            tree.Query(left, right - 1, n).display();
         }
     }
 }
