@@ -1,7 +1,7 @@
 /*
 Problem link: https://codeforces.com/edu/course/2/lesson/4/1/practice/contest/273169/problem/B
 Sovled by: Le Huu Trung
-Supervisor: Dr. Vu Duc Minh
+Instructor: Dr. Vu Duc Minh
 */
 #include <bits/stdc++.h>
 using namespace std;

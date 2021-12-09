@@ -1,123 +1,171 @@
 /*
 Problem Link: https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/A
 Author: Lê Hữu Trung
-Supervisor: Dr. Vũ Đức Minh
+Instructor: Dr. Vũ Đức Minh
 */
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-// Each node contain sum and max_sum on a segment
-struct Node{
+// A data structure for each node in the Segment Tree.
+struct Node {
+    // Each node contain sum and max_sum on a segment
     long long maxPrefixSum;
     long long maxSuffixSum;
     long long totalSum;
     long long maxSubArraySum;
-    
-    // Constructor
-    Node(){
+
+    // Constructor of an empty node.
+    Node() {
         maxPrefixSum = maxSuffixSum = totalSum = maxSubArraySum = INT_MIN;
     }
 
-    // Set leaft node
-    void setLeaf(long long n){
-        maxPrefixSum = maxSuffixSum = maxSubArraySum = totalSum = n;
+    // A method for setting the leaf node.
+    void set(long long value) {
+        maxPrefixSum = maxSuffixSum = maxSubArraySum = totalSum = value;
     }
 
-    // Set internal node
-    void setInternal(Node left, Node right){
+    // A method for setting the internal node.
+    void merge(Node left, Node right) {
         maxPrefixSum = max(left.maxPrefixSum, left.totalSum + right.maxPrefixSum);
         maxSuffixSum = max(right.maxSuffixSum, right.totalSum + left.maxSuffixSum);
         totalSum = left.totalSum + right.totalSum;
         maxSubArraySum = max(max(left.maxSubArraySum, right.maxSubArraySum), left.maxSuffixSum + right.maxPrefixSum);
     }
+
+    void display() {
+        maxSubArraySum = maxSubArraySum > 0 ? maxSubArraySum : 0;
+        cout << maxSubArraySum << "\n";
+    }
 };
 
-long long getMid(long long start, long long end){
-    return start + (end - start)/2;
+int getMid(int start, int end) {
+    return start + (end - start) / 2;
 }
 
-void constructSTUntil(Node *st, long long arr[], long long start, long long end, long long current){
-    if(start == end){
-        st[current].setLeaf(arr[start]);
-        return;
+// A data structure for the Segment Tree.
+struct SegmentTree {
+    // Maximum size of the segment tree.
+    int size;
+
+    // A vector for storing the nodes of the Segment Tree.
+    vector<Node> ST;
+
+    // Constructor of the Segment Tree.
+    SegmentTree(int n) {
+        // Calculate the height.
+        int height = (int)ceil(log2(n));
+        // Calculate the maxsize.
+        size = 2 * pow(2, height) - 1;
+        // Allocate memory for Segment Tree.
+        ST.resize(size);
     }
 
-    long long mid = getMid(start, end);
+    // A recursive method for constructing the Segment Tree.
+    void Construct(long long arr[], int n, int start, int end, int current) {
+        // If there is only one element in the array, store its information in the current node and stop recurring.
+        if (start == end) {
+            ST[current].set(arr[start]);
+            return;
+        }
 
-    constructSTUntil(st, arr, start, mid, current*2 + 1);
-    constructSTUntil(st, arr, mid + 1, end, current*2 + 2);
+        int mid = getMid(start, end);
 
-    st[current].setInternal(st[current*2 + 1], st[current*2 + 2]);
-}
+        // If there are more than one element in the array,
+        // divide the array into two halves and call the same procedure on each half.
+        Construct(arr, n, start, mid, current * 2 + 1);
+        Construct(arr, n, mid + 1, end, current * 2 + 2);
 
-Node *constructST(long long arr[], long long n){
-    long long height = (int)ceil(log2(n));
-    long long max_size = 2*(int)pow(2, height) - 1;
-    Node *st = new Node[max_size];
-    constructSTUntil(st, arr, 0, n - 1, 0);
-    return st;
-}
-
-Node getMaxSumUntil(Node *st, long long start, long long end, long long current, long long l, long long r){
-    if(r > end || r < start || l > r){
-        Node null;
-        return null;
+        // Store the information of the left and right child in the internal node.
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
     }
 
-    if(l <= start && r >= end){
-        return st[current];
+    // Overloading method for constructing the Segment Tree.
+    void Construct(long long arr[], int n) {
+        Construct(arr, n, 0, n - 1, 0);
     }
 
-    long long mid = getMid(start, end);
+    // A recursive method for range query on the Segment Tree.
+    Node Query(int l, int r, int start, int end, int current) {
+        // Declare an empty node with initial value of zero to store the query answer.
+        Node answer;
 
-    Node left = getMaxSumUntil(st, start, mid, current*2 + 1, l, r);
-    Node right = getMaxSumUntil(st, mid + 1, end, current*2 + 2, l, r);
-    Node answer;
-    answer.setInternal(left, right);
-    return answer;
-}
+        // If the current segment is a part of the query range,
+        // assign the current node to answer and return.
+        if (l <= start && r >= end) {
+            answer = ST[current];
+            return answer;
+        }
 
-long long getMaxSum(Node *st, long long l, long long r, long long n){
-    Node answer = getMaxSumUntil(st, 0, n - 1, 0, l, r);
-    return answer.maxSubArraySum > 0 ? answer.maxSubArraySum : 0;
-}
+        // If the current segment is completely outside the query range, just return the empty node.
+        if (l > end || r < start || l > r) {
+            return answer;
+        }
 
-void updateValueUntil(Node *st, long long arr[], long long start, long long end, long long current, long long index, long long value){
-    if(index < start || index > end){
-        return;
+        // If the current segment overlaps with the query range,
+        // divide it into two halves and call the same procedure for each half.
+        int mid = getMid(start, end);
+
+        Node left = Query(l, r, start, mid, current * 2 + 1);
+        Node right = Query(l, r, mid + 1, end, current * 2 + 2);
+
+        // Merge the query answer on the left and right halves and return.
+        answer.merge(left, right);
+
+        return answer;
     }
 
-    if(start == end){
-        arr[start] = value;
-        st[current].setLeaf(value);
-        return;
+    // Overloading method for range query on the Segment Tree.
+    Node Query(int l, int r, int n) {
+        return Query(l, r, 0, n - 1, 0);
     }
 
-    long long mid = getMid(start, end);
-    updateValueUntil(st, arr, start, mid, current*2 + 1, index, value);
-    updateValueUntil(st, arr, mid + 1, end, current*2 + 2, index, value);
-    st[current].setInternal(st[current*2 + 1], st[current*2 + 2]);
-}
+    // Recursive method for updating the Segment Tree.
+    void Update(int position, long long value, int start, int end, int current) {
+        // If the position is completely outside the current segment, just stop recurring.
+        if (position < start || position > end) {
+            return;
+        }
 
-void updateValue(Node *st, long long arr[], long long index, long long value, long long n){
-    updateValueUntil(st, arr, 0, n - 1, 0, index, value);   
-}
+        if (start == end) {
+            ST[current].set(value);
+            return;
+        }
 
-int main(){
-    long long n, m;
+        int mid = getMid(start, end);
+
+        if (position <= mid) {
+            Update(position, value, start, mid, current * 2 + 1);
+        } else {
+            Update(position, value, mid + 1, end, current * 2 + 2);
+        }
+
+        ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
+    }
+
+    void Update(int position, long long value, int n) {
+        Update(position, value, 0, n - 1, 0);
+    }
+};
+
+int main() {
+    int n, m;
     cin >> n >> m;
-    long long arr[n];
-    for(long long i = 0; i < n; i++){
-        cin >> arr[i];
-    }
+    long long nums[n];
 
-    Node *st = constructST(arr, n);
-    cout << getMaxSum(st, 0, n - 1, n) << "\n";
-    long long index, value;
-    for(long long i = 0; i < m; i++){
+    for (long long &num : nums) {
+        cin >> num;
+    }
+    SegmentTree tree(n);
+    tree.Construct(nums, n);
+
+    tree.Query(0, n - 1, n).display();
+
+    int index;
+    long long value;
+    for (int i = 0; i < m; i++) {
         cin >> index >> value;
-        updateValue(st, arr, index, value, n);
-        cout << getMaxSum(st, 0, n - 1, n) << "\n";
+        tree.Update(index, value, n);
+        tree.Query(0, n - 1, n).display();
     }
 }

@@ -1,7 +1,7 @@
 /*
 Problem Link: https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/C
 Author: Lê Hữu Trung
-Supervisor: Dr. Vũ Đức Minh
+Instructor: Dr. Vũ Đức Minh
 */
 
 #include<bits/stdc++.h>

@@ -2,7 +2,7 @@
 Accepted.
 Problem Link: https://oj.vnoi.info/problem/olp_kc19_seq
 Solved: Lê Hữu Trung
-Supervisor: Dr. Vũ Đức Minh
+Instructor: Dr. Vũ Đức Minh
 Note: Change int to long long to get Accepted
 */
 
