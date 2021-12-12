@@ -82,15 +82,15 @@ struct SegmentTree {
         // Declare an empty node with initial value of zero to store the query answer.
         Node answer;
 
-        // On reaching the segment with the length of 1 and the value is at least X, return the array index
-        if (start == end && ST[current].value >= X) {
-            answer.set(start);
-            return answer;
-        }
-
         // Not finding the element at least X
         if (start > end || (start == end && ST[current].value < X)) {
             answer.set(-1);
+            return answer;
+        }
+
+        // On reaching the segment with the length of 1 and the value is at least X, return the array index
+        if (start == end) {
+            answer.set(start);
             return answer;
         }
 
