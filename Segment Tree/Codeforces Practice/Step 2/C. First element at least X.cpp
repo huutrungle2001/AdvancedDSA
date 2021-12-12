@@ -1,5 +1,5 @@
 /*
-Problem Link: https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
+Problem Link: https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/C
 Author: Lê Hữu Trung
 Instructor: Ph.D. Vũ Đức Minh
 */
@@ -13,7 +13,7 @@ struct Node {
 
     // Constructor of an empty node.
     Node() {
-        value = 0;
+        value = INT_MIN;
     }
 
     // A method for setting the leaf node.
@@ -23,7 +23,7 @@ struct Node {
 
     // A method for setting the internal node.
     void merge(Node left, Node right) {
-        value = left.value + right.value;
+        value = max(left.value, right.value);
     }
 
     void display() {
@@ -78,60 +78,66 @@ struct SegmentTree {
     }
 
     // A recursive method for range query on the Segment Tree.
-    Node Query(int start, int end, int current, int k) {
+    Node Query(int start, int end, int current, int X) {
         // Declare an empty node with initial value of zero to store the query answer.
         Node answer;
 
-        // On reaching the segment with the length of 1, just return the array index
-        if (start == end) {
+        // On reaching the segment with the length of 1 and the value is at least X, return the array index
+        if (start == end && ST[current].value >= X) {
             answer.set(start);
+            return answer;
+        }
+
+        // Not finding the element at least X
+        if (start > end || (start == end && ST[current].value < X)) {
+            answer.set(-1);
             return answer;
         }
 
         int mid = getMid(start, end);
 
-        // If sum on the left subtree is larger than k, the answer is on this subtree
-        if (k < ST[current * 2 + 1].value) {
-            answer = Query(start, mid, current * 2 + 1, k);
-        } 
-        // Else find the answer on the right subtree
+        // If max on the left subtree is greater than X, find the answer on this subtree
+        if (ST[current * 2 + 1].value >= X) {
+            answer = Query(start, mid, current * 2 + 1, X);
+        }
+        // Else the answer is on the right subtree
         else {
-            answer = Query(mid + 1, end, current * 2 + 2, k - ST[current * 2 + 1].value);
+            answer = Query(mid + 1, end, current * 2 + 2, X);
         }
 
         return answer;
     }
 
     // Overloading method for range query on the Segment Tree.
-    Node Query(int n, int k) {
-        return Query(0, n - 1, 0, k);
+    Node Query(int n, int X) {
+        return Query(0, n - 1, 0, X);
     }
 
     // Recursive method for updating the Segment Tree.
-    void Update(int position, int start, int end, int current) {
+    void Update(int position, int value, int start, int end, int current) {
         // If the position is completely outside the current segment, just stop recurring.
         if (position < start || position > end) {
             return;
         }
 
         if (start == end) {
-            ST[current].value = 1 - ST[current].value;
+            ST[current].set(value);
             return;
         }
 
         int mid = getMid(start, end);
 
         if (position <= mid) {
-            Update(position, start, mid, current * 2 + 1);
+            Update(position, value, start, mid, current * 2 + 1);
         } else {
-            Update(position, mid + 1, end, current * 2 + 2);
+            Update(position, value, mid + 1, end, current * 2 + 2);
         }
 
         ST[current].merge(ST[current * 2 + 1], ST[current * 2 + 2]);
     }
 
-    void Update(int position, int n) {
-        Update(position, 0, n - 1, 0);
+    void Update(int position, int value, int n) {
+        Update(position, value, 0, n - 1, 0);
     }
 };
 
@@ -150,13 +156,13 @@ int main() {
         int operation;
         cin >> operation;
         if (operation == 1) {
-            int position;
-            cin >> position;
-            tree.Update(position, n);
+            int position, value;
+            cin >> position >> value;
+            tree.Update(position, value, n);
         } else {
-            int k;
-            cin >> k;
-            tree.Query(n, k).display();
+            int X;
+            cin >> X;
+            tree.Query(n, X).display();
         }
     }
 }
