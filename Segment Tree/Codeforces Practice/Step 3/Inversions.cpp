@@ -1,8 +1,8 @@
-/**
-    Problem Link: https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/A
-    Author: Lê Hữu Trung
-    Instructor: Ph.D. Vũ Đức Minh
-**/
+/*
+Problem Link: https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/A
+Author: Lê Hữu Trung
+Instructor: Ph.D. Vũ Đức Minh
+*/
 
 #include<bits/stdc++.h> 
 #define inf 1000000
@@ -54,8 +54,6 @@ void updateValueUntil(int *st, int start, int end, int current, int position, in
 void updateValue(int *st, int n, int position, int value){
     updateValueUntil(st, 0, n - 1, 0, position, value);
 }
-
-
  
 int main() {
     int n;

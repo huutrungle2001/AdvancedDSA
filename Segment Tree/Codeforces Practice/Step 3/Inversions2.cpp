@@ -1,5 +1,5 @@
 /*
-Problem Link:   https://c...content-available-to-author-only...s.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
+Problem Link:   https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/B
 Author:         Lê Hữu Trung
 Instructor:     Ph.D. Vũ Đức Minh
 */
@@ -85,11 +85,11 @@ int main(){
     vector<int> st = constructST(B, n);
 
     for(int i = n - 1; i >= 0; i--){
-        B[i] = n - getKth(st, A[i], n);
-        updateValue(st, n, A[i]);
+        B[i] = getKth(st, i - A[i], n);
+        updateValue(st, n, B[i]);
     }
 
     for(int i : B){
-        cout << i << " ";
+        cout << i + 1 << " ";
     }
 }
