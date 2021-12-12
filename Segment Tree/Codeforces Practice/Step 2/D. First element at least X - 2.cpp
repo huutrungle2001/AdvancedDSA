@@ -84,7 +84,7 @@ struct SegmentTree {
 
     // A recursive method for range query on the Segment Tree.
     Node Query(int start, int end, int current, int X, int L) {
-        // Declare an empty node with initial value of zero to store the query answer.
+        // Declare an empty node with initial value of -1 to store the query answer.
         Node answer(-1);
 
         // Not finding the element at least X
